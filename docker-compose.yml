@@ -5,7 +5,7 @@ services:
     image: ghcr.io/chashkakefira/seating-generator-backend:latest
     container_name: seating-backend
     ports: 
-      - "8091:8080"
+      - "8091:5000"
 
   frontend:
     image: ghcr.io/chashkakefira/seating-generator-frontend:latest
