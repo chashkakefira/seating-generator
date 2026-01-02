@@ -39,7 +39,7 @@ jobs:
       - name: Build
         run: |
           cd presentation
-          nr build --base /${{github.event.repository.name}}/
+          nr build --base /
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
