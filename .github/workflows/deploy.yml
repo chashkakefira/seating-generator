@@ -28,25 +28,36 @@ jobs:
       - name: Setup @antfu/ni
         run: npm i -g @antfu/ni
 
-      - name: Navigate to presentation
-        run: cd presentation
-
       - name: Install dependencies
         run: |
           cd presentation
           nci
 
-      - name: Build
+      - name: Build Slidev
         run: |
           cd presentation
           nr build --base /
+
+      - name: Export to PDF
+        run: |
+          cd presentation
+          npx slidev export --format pdf --output ../dist/presentation.pdf
+
+      - name: Convert PDF to PPTX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libreoffice
+          libreoffice --headless --convert-to pptx dist/presentation.pdf --outdir dist/
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: presentation/dist
+          path: |
+            presentation/dist
+            dist/presentation.pdf
+            dist/presentation.pptx
 
   deploy:
     environment:
