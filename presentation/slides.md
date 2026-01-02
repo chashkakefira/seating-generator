@@ -397,7 +397,7 @@ layout: two-cols-header
 
 ::left::
 
-<img src="/gopher.svg" class="w-1/2" />
+<img src="/ladder.svg" class="w-1/2" />
 
 ::right::
 
