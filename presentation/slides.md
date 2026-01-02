@@ -1,5 +1,6 @@
 ---
 layout: center
+colorSchema: dark
 fonts:
   sans: 'Inter'            
   serif: 'Instrument Serif'   
@@ -87,7 +88,7 @@ layout: two-cols-header
 
 **Главные недостатки:**
 - **Время:** Требует очень медленного охлаждения.
-- **Застревание:** Прибыстром снижении температуре может застрять
+- **Застревание:** При быстром снижении температуры может застрять
 
 ::right::
 
@@ -205,11 +206,24 @@ layout: two-cols-header
   </div>
 </div>
 ---
-layout: center
+layout: default
 ---
 
 # **Как работает меметический алгоритм?**
 
+- Создаём начальную популяцию случайных рассадок
+- Оцениваем каждую рассадку с помощью функции fitness
+- Применяем локальный поиск к лучшей особи и (с шансом 0,05) к случайным особям
+- Отбираем родителей для скрещивания (через турнирную селекцию)
+- Генерируем потомство:
+
+ --- Скрещивание (CrossOver) родителей
+
+ --- Мутация (SwapMutation) с заданной вероятностью
+
+ --- Переносим лучшую особь в новое поколение (элитизм)
+
+ --- Повторяем шаги 2–6 заданное число поколений
 ---
 layout: default
 ---
@@ -238,8 +252,7 @@ layout: default
 
 # **Как работает меметический алгоритм?**
 ```go
-func RunGA(req Request) ([]Response, int) {
-	// ...
+func RunGA(req Request) ([]Response, int) { 
   // Создаем популяцию размером popSize и заполняем ее случайными рассадками
 	population := make([][]int, popSize)
 	for i := range population {
@@ -271,7 +284,7 @@ layout: default
 # **Как работает меметический алгоритм?**
 
 ```go
-// Применяем локальный поиск к лучшей особи и шансом 0.05 к случайной особи
+// Применяем локальный поиск к лучшей особи и с шансом 0.05 к случайной особи
 for i := 0; i < popSize; i++ {
 			if i == iBest || rand.Float64() < 0.05 {
 				population[i] = localSearch(population[iBest], req.Students, req.ClassConfig, weights, friends, enemies)
@@ -300,10 +313,10 @@ for i := 0; i < popSize; i++ {
 ---
 
 
-# **Подробнее про фитнес функцию и как она работает или как оценить рассадку?**
+# **Фитнес функция: как оценить рассадку?**
 
 
-Общая оценка рассадки $F(S)$:
+Общая оценка рассадки $F(S)$ считается как сумма учтенности предпочтений каждого из учеников в отдельности
 
 
 <span class="small-math">
@@ -330,8 +343,149 @@ $$
 - $R = \text{Rows}$, $C = \text{Columns}$ — размеры класса.
 <style>
 .small-math {
-  font-size: 0.9em;
+  font-size: 0.7em;
   display: block;
   margin: 1rem 0;
+}
+</style>
+---
+layout: two-cols-header
+class: flex flex-col justify-center
+---
+
+# **Веса, настройка, калибровка фитнес функции**
+
+::left::
+
+Самая важная часть алгоритма. От того, как конкретно функция fitness оценит рассадку, зависит, куда дальше пойдет эволюция.
+Однако, у каждого пользователя могут быть разные запросы. Поэтому важно разработать максимально гибкую и настраиваемую систему.
+
+Вместе с запросом к бекенду посылаются **веса** - какие предпочтения учитывать больше, а какие меньше. От их правильной настройки зависит качество решения.
+
+::right::
+
+```go
+func calculateWeights(config ClassConfig, pw PriorityWeights) Weights {
+	const (
+		BASE_FILL   = 200
+		BASE_PREF   = 8000
+		BASE_FRIEND = 10000
+		BASE_HARD   = 15000
+	)
+
+	wFill := int(pw.Fill * float64(BASE_FILL))
+	wPref := int(pw.Preferences * float64(BASE_PREF))
+	wFriend := int(pw.Friends * float64(BASE_FRIEND))
+	wMed := int(pw.Medical * float64(BASE_HARD))
+	wEnemy := int(pw.Enemies * float64(BASE_HARD))
+	return Weights{
+		RowBonus: wFill * 2,
+		PosBonus: wFill,
+		PrefBonus:    wPref,
+		EnemyPenalty: wEnemy,
+		FriendBonus:  wFriend,
+		MedPenalty:   wMed,
+	}
+}
+```
+
+---
+layout: two-cols-header
+---
+
+# **Почему в качестве языка бекенда выбран Go?**
+
+::left::
+
+![](https://go.dev/images/gophers/ladder.svg)
+
+::right::
+
+- Это современно
+- Go язык компилируемый =>
+
+  -- Легкость развертывания (всего один бинарный файл, который можно запустить где угодно)
+ 
+  -- Работает быстрее пресловутого Python
+- Масштабируемость и приспособленность языка к реализации на нем высоконагруженных микросервисов
+- Простой, минималистичный синтаксис
+- Строгая типизация позволяет избежать досадных ошибок
+
+---
+layout: two-cols-header
+---
+
+# **Как выглядит запрос к серверу?** 
+
+::left::
+
+```json
+{
+    "students": [
+        {
+            "id": 1767369989264,
+            "name": "Иван",
+            "preferredRows": [],
+            "preferredColumns": [],
+            "medicalPreferredRows": [],
+            "medicalPreferredColumns": []
+        },
+        {
+            "id": 1767369995544,
+            "name": "Петр",
+            "preferredRows": [],
+            "preferredColumns": [],
+            "medicalPreferredRows": [],
+            "medicalPreferredColumns": []
+        },
+        {
+            "id": 1767369998215,
+            "name": "Елизавета",
+            "preferredRows": [],
+            "preferredColumns": [],
+            "medicalPreferredRows": [],
+            "medicalPreferredColumns": []
+        }
+    ],
+```
+
+::right::
+
+```json
+  "preferences": [
+          [
+              1767369989264,
+              1767369995544
+          ]
+      ],
+      "forbidden": [
+          [
+              1767369995544,
+              1767369998215
+          ]
+      ],
+      "classConfig": {
+          "rows": 3,
+          "columns": 4
+      },
+      "popSize": 300,
+      "generations": 400,
+      "crossOverChance": 0.3,
+      "PriorityWeights": {
+          "Medical": 8,
+          "Friends": 6.5,
+          "Enemies": 7,
+          "Preferences": 6.5,
+          "Fill": 3
+      }
+}
+```
+
+<style>
+pre {
+  max-height: 400px;
+  overflow-y: hidden;
+  font-size: 0.6rem !important;
+  line-height: 1.2 !important;
 }
 </style>
