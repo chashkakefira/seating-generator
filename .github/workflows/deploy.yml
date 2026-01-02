@@ -62,14 +62,14 @@ jobs:
           libreoffice --headless --convert-to pptx dist/presentation.pdf --outdir dist/
 
       - name: Upload PDF as separate artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: presentation-pdf
           path: presentation/dist/presentation.pdf
           if-no-files-found: error
 
       - name: Upload PPTX as separate artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: presentation-pptx
           path: presentation/dist/presentation.pptx
