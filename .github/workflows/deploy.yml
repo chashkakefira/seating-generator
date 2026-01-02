@@ -1,4 +1,5 @@
-name: Deploy pages
+name: Deploy Slidev Presentation
+
 
 on:
   workflow_dispatch:
@@ -10,30 +11,39 @@ permissions:
   pages: write
   id-token: write
 
+
 concurrency:
   group: pages
   cancel-in-progress: false
+
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
 
-      - name: Setup @antfu/ni
+
+      - name: Install global dependencies
         run: npm i -g @antfu/ni
 
-      - name: Install dependencies
+
+      - name: Navigate to presentation folder
+        run: cd presentation
+
+      - name: Install project dependencies
         run: |
           cd presentation
           nci
 
-      - name: Build Slidev
+      - name: Build Slidev (HTML)
         run: |
           cd presentation
           nr build --base /
@@ -41,23 +51,29 @@ jobs:
       - name: Export to PDF
         run: |
           cd presentation
-          npx slidev export --format pdf --output ../dist/presentation.pdf
+          npx slidev export --format pdf --output dist/presentation.pdf
 
       - name: Convert PDF to PPTX
         run: |
           sudo apt-get update
           sudo apt-get install -y libreoffice
+          cd presentation
           libreoffice --headless --convert-to pptx dist/presentation.pdf --outdir dist/
 
-      - name: Setup Pages
+
+      - name: Verify output files
+        run: |
+          echo "Listing files in presentation/dist:"
+          ls -la presentation/dist/
+
+
+      - name: Setup GitHub Pages
         uses: actions/configure-pages@v4
 
-      - uses: actions/upload-pages-artifact@v3
+      - name: Upload artifact for GitHub Pages
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: |
-            presentation/dist
-            dist/presentation.pdf
-            dist/presentation.pptx
+          path: presentation/dist
 
   deploy:
     environment:
@@ -65,8 +81,10 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     needs: build
     runs-on: ubuntu-latest
-    name: Deploy
+    name: Deploy to GitHub Pages
+
+
     steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
