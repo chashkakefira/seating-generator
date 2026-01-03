@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   backend:
     image: ghcr.io/chashkakefira/seating-generator-backend:latest
@@ -12,7 +10,5 @@ services:
     container_name: seating-frontend
     ports:
       - "8092:80"
-    environment: 
-      - VITE_API_URL=http://localhost:8091/api/generate-seating
     depends_on: 
       - backend
