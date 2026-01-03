@@ -2,9 +2,9 @@
 layout: center
 colorSchema: dark
 fonts:
-  sans: 'Inter'            
-  serif: 'Instrument Serif'   
-  mono: 'Fira Code'           
+  sans: "Inter"
+  serif: "Instrument Serif"
+  mono: "Fira Code"
 ---
 
 # Написание алгоритма нахождения оптимальной рассадки учеников в классе
@@ -36,39 +36,6 @@ class: flex flex-col justify-center
   column-gap: 20px;
 }
 </style>
----
-layout: two-cols
----
-
-### **Проект реализован по принципу разделения ответственности**
-* Backend (Go)
-  * Выполнение меметического алгоритма, изоляция ради стабильности
-* Frontend (Vue 3)
-  * Клиентское приложение для настройки параметров и весов, визуализация результата
-* Взаимодействие (REST API)
-  * Обмен данными через JSON-объекты, возможность работы с другими клиентами
-* Инфраструктура (Docker + Github Actions)
-  * Развертывание одной командой без установки зависимостей.
-
-::right::
-
-<div class="flex flex-col items-center justify-center h-full">
-  <div class="p-3 border-2 border-emerald-500 rounded-lg bg-emerald-500/10 w-48 text-center">
-    <carbon-code class="mb-1" />
-    <div class="text-xs font-bold">Backend (Go)</div>
-    <div class="text-[10px] opacity-70">Вычисления и логика</div>
-  </div>
-  
-  <div class="h-8 w-0.5 bg-gray-500 my-1 border-dashed border-l-2"></div>
-  <div class="text-[10px] text-orange-400 font-mono">JSON API</div>
-  <div class="h-8 w-0.5 bg-gray-500 my-1 border-dashed border-l-2"></div>
-
-  <div class="p-3 border-2 border-blue-500 rounded-lg bg-blue-500/10 w-48 text-center">
-    <carbon-screen class="mb-1" />
-    <div class="text-xs font-bold">Frontend (Vue 3)</div>
-    <div class="text-[10px] opacity-70">Визуализация и UX</div>
-  </div>
-</div>
 ---
 layout: center
 ---
@@ -443,7 +410,39 @@ layout: two-cols-header
 - Масштабируемость и приспособленность языка к реализации на нем высоконагруженных микросервисов
 - Простой, минималистичный синтаксис
 - Строгая типизация позволяет избежать досадных ошибок
+---
+layout: two-cols
+---
 
+### **Проект реализован по принципу разделения ответственности**
+* Backend (Go)
+  * Выполнение меметического алгоритма, изоляция ради стабильности
+* Frontend (Vue 3)
+  * Клиентское приложение для настройки параметров и весов, визуализация результата
+* Взаимодействие (REST API)
+  * Обмен данными через JSON-объекты, возможность работы с другими клиентами
+* Инфраструктура (Docker + Github Actions)
+  * Развертывание одной командой без установки зависимостей.
+
+::right::
+
+<div class="flex flex-col items-center justify-center h-full">
+  <div class="p-3 border-2 border-emerald-500 rounded-lg bg-emerald-500/10 w-48 text-center">
+    <carbon-code class="mb-1" />
+    <div class="text-xs font-bold">Backend (Go)</div>
+    <div class="text-[10px] opacity-70">Вычисления и логика</div>
+  </div>
+  
+  <div class="h-8 w-0.5 bg-gray-500 my-1 border-dashed border-l-2"></div>
+  <div class="text-[10px] text-orange-400 font-mono">JSON API</div>
+  <div class="h-8 w-0.5 bg-gray-500 my-1 border-dashed border-l-2"></div>
+
+  <div class="p-3 border-2 border-blue-500 rounded-lg bg-blue-500/10 w-48 text-center">
+    <carbon-screen class="mb-1" />
+    <div class="text-xs font-bold">Frontend (Vue 3)</div>
+    <div class="text-[10px] opacity-70">Визуализация и UX</div>
+  </div>
+</div>
 ---
 layout: two-cols-header
 ---
