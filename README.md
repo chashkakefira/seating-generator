@@ -24,6 +24,8 @@
   <img src="./screenshots/main.png" width="45%" alt="Главный экран" />
   <img src="./screenshots/editor.png" width="45%" alt="Редактор класса" />
   <img src="./screenshots/generator.png" width="45%" alt="Генератор рассадки" />
+  <img src="./screenshots/seatings.png" width="45%" alt="Сохраненные рассадки" />
+  <img src="./screenshots/view-seating.png" width="45%" alt="Просмотр сохраненной рассадки" />
 </p>
 
 ---
