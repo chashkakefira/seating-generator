@@ -50,7 +50,12 @@
 Клонируйте репозиторий и выполните команду в корневой папке:
 
 ```bash
-docker compose up
+# клонируем репозиторий
+git clone https://github.com/chashkakefira/seating-generator
+# переходим в папку с репозиторием
+cd seating-generator
+# запускаем Docker контейнеры
+docker compose up --pull always
 ```
 
 ### 2. Доступ к приложению
@@ -58,9 +63,9 @@ docker compose up
 - Frontend (Интерфейс): http://localhost:8092
 - Backend (API): http://localhost:8091
 
-### 3. Остановка системы
+### 3. Остановка контейнеров
 
-Для корректного завершения работы и освобождения ресурсов используйте:
+Для корректного завершения работы используйте:
 
 ```bash
 docker compose down
