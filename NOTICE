@@ -5,9 +5,10 @@ Copyright (C) 2026 Прокофьев Даниил <danieldzen@yandex.ru>
 
 Проект состоит из нескольких модулей, использующих следующие технологии:
 
-1. Фронтенд: Vue 3, BootstrapVueNext, Vite, jsPDF (MIT License).
+1. Фронтенд: Vue 3, BootstrapVueNext, Vite, jsPDF, Axios (MIT License).
 2. Бэкенд: Go, github.com/google/uuid (BSD-3-Clause License), github.com/joho/godotenv (MIT License) 
-3. Инфраструктура: Docker, Caddy (Apache 2.0).
+3. Презентация: Slidev (MIT License, Copyright © 2020-2025 Anthony Fu)
+4. Инфраструктура: Docker, Caddy (Apache 2.0).
 
 Полные уведомления об авторских правах сторонних библиотек для каждого 
 модуля находятся в файлах NOTICE соответствуюших репозиториев
