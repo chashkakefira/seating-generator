@@ -318,36 +318,25 @@ for i := 0; i < popSize; i++ {
 
 Общая оценка рассадки $F(S)$ считается как сумма учтенности предпочтений каждого из учеников в отдельности
 
+```go
+func fitness(seating []int, config ClassConfig, w Weights, friends SocialMap, enemies SocialMap, ...) float64 {
+	score := 0.0
+	for i, studentIdx := range seating {
+		if studentIdx < 0 || studentIdx >= nStudents {
+			continue
+		}
+		row, col := i/config.Columns, i%config.Columns
+		fScore := checkFriends(studentIdx, seating, row, col, config, friends, nStudents, friendsCount)
+		ePenalty := checkEnemies(studentIdx, seating, row, col, config, enemies, nStudents)
 
-<span class="small-math">
-$$
-F(S) = \sum_{i=0}^{N-1} \left[
-  \underbrace{w_R \cdot (R - r_i)}_{\text{ряд}} +
-  \underbrace{w_P \cdot (C - c_i)}_{\text{колонка}} +
-  \underbrace{M(s_i, r_i, c_i)}_{\text{медицина}} +
-  \underbrace{P(s_i, r_i, c_i)}_{\text{предпочтения}} +
-  \underbrace{F(s_i, S, r_i, c_i)}_{\text{друзья}} +
-  \underbrace{E(s_i, S, r_i, c_i)}_{\text{враги}}
-\right]
-$$
-</span>
+		sScore := (fScore * w.FriendBonus * 100.0) - (ePenalty * w.EnemyPenalty * 5.0 * 100.0)
+		sScore += staticScores[studentIdx*config.Rows*config.Columns+i]
 
-## Обозначения
-
-- $F(S)$ — общая оценка рассадки $S$ (максимизируется);
-- $N = \text{Rows} \times \text{Columns}$ — общее число мест;
-- $i$ — индекс места ($0 \leq i < N$);
-- $r_i = \left\lfloor \dfrac{i}{C} \right\rfloor$ — номер ряда места $i$;
-- $c_i = i \bmod C$ — номер колонки места $i$;
-- $s_i = S[i]$ — индекс ученика на месте $i$ (или недопустимое значение);
-- $R = \text{Rows}$, $C = \text{Columns}$ — размеры класса.
-<style>
-.small-math {
-  font-size: 0.7em;
-  display: block;
-  margin: 1rem 0;
+		score += sScore
+	}
+	return score
 }
-</style>
+```
 ---
 layout: two-cols-header
 class: flex flex-col justify-center
@@ -364,28 +353,55 @@ class: flex flex-col justify-center
 
 ::right::
 
-```go
-func calculateWeights(config ClassConfig, pw PriorityWeights) Weights {
-	const (
-		BASE_FILL   = 200
-		BASE_PREF   = 8000
-		BASE_FRIEND = 10000
-		BASE_HARD   = 15000
-	)
+```json
+...
+"PriorityWeights": {
+          "Medical": 0.9,
+          "Friends": 0.65,
+          "Enemies": 0.7,
+          "Preferences": 0.6,
+          "Fill": 0.3
+      }
+...
+```
 
-	wFill := int(pw.Fill * float64(BASE_FILL))
-	wPref := int(pw.Preferences * float64(BASE_PREF))
-	wFriend := int(pw.Friends * float64(BASE_FRIEND))
-	wMed := int(pw.Medical * float64(BASE_HARD))
-	wEnemy := int(pw.Enemies * float64(BASE_HARD))
-	return Weights{
-		RowBonus: wFill * 2,
-		PosBonus: wFill,
-		PrefBonus:    wPref,
-		EnemyPenalty: wEnemy,
-		FriendBonus:  wFriend,
-		MedPenalty:   wMed,
+---
+layout: two-cols-header
+---
+
+# **Как работает проверка предпочтений?**
+
+::left::
+
+Каждая функция, которая что-то проверяет, возвращает **нормализованное значение** от 0.0 до 1.0. 
+Такая функция считает учтенность какого-либо предпочтения для отдельного ученика и делит полученное значение на максимальное значение учтенности этого конкретного предпочтения.
+
+Затем, значение этой функции умножается на некий вес, который пришел с фронтенда.
+
+::right::
+
+```go
+// функция проверки учтенности предпочтений по рядам и партам
+func checkPref(student optStudent, row, col int) float64 {
+	score := 0.0
+	maxPossible := 0.0
+	if len(student.pCols) > 0 {
+		maxPossible += 1.0 // если есть предпочтения по рядам
 	}
+	if len(student.pRows) > 0 {
+		maxPossible += 1.0  // если есть предпочтения по партам
+	}
+	if maxPossible == 0 {
+		return 1.0 // если предпочтений вообще нету
+	}
+	if student.pCols[col] {
+		score += 1.0 // если предпочтение по ряду выполнено
+	}
+	if student.pRows[row] {
+		score += 1.0 // если предпочтение по парте выполнено
+	}
+  // возвращаем нормализованное значение от 0.0 до 1.0
+	return score / maxPossible
 }
 ```
 
@@ -397,16 +413,16 @@ layout: two-cols-header
 
 ::left::
 
-<img src="/ladder.svg" class="w-1/2" />
+<img src="/ladder.svg" class="w-7/8" />
 
 ::right::
 
-- Это современно
 - Go язык компилируемый =>
 
   -- Легкость развертывания (всего один бинарный файл, который можно запустить где угодно)
  
   -- Работает быстрее пресловутого Python
+- Параллельные вычисления с помощью горутинов
 - Масштабируемость и приспособленность языка к реализации на нем высоконагруженных микросервисов
 - Простой, минималистичный синтаксис
 - Строгая типизация позволяет избежать досадных ошибок
@@ -504,11 +520,11 @@ layout: two-cols-header
       "generations": 400,
       "crossOverChance": 0.3,
       "PriorityWeights": {
-          "Medical": 8,
-          "Friends": 6.5,
-          "Enemies": 7,
-          "Preferences": 6.5,
-          "Fill": 3
+          "Medical": 0.9,
+          "Friends": 0.65,
+          "Enemies": 0.7,
+          "Preferences": 0.6,
+          "Fill": 0.3
       }
 }
 ```
@@ -521,3 +537,97 @@ pre {
   line-height: 1.2 !important;
 }
 </style>
+---
+layout: default
+---
+
+# **В попытках разработать дружественный интерфейс...**
+
+![](/screenshots/main.png)
+---
+
+![](/screenshots/editor.png)
+
+---
+
+![](/screenshots/generator.png)
+---
+
+![](/screenshots/seatings.png)
+---
+
+![](/screenshots/view-seating.png)
+---
+layout: two-cols-header
+class: flex flex-col justify-center
+---
+
+# **Что использовано?**
+смотрим на package.json проекта
+
+::left::
+
+```json
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@popperjs/core": "^2.11.8",
+    "axios": "^1.13.2",
+    "bootstrap": "^5.3.8",
+    "bootstrap-vue-next": "^0.40.9",
+```
+
+::right::
+```json
+    "jspdf": "^4.0.0",
+    "jspdf-autotable": "^5.0.7",
+    "papaparse": "^5.5.3",
+    "unplugin-icons": "^22.5.0",
+    "vue": "^3.5.26",
+    "vue-router": "^4.6.4",
+    "vuedraggable": "^4.1.0"
+  },
+  "devDependencies": {
+    "@iconify-json/bi": "^1.2.7",
+    "@vitejs/plugin-vue": "^6.0.3",
+    "unplugin-vue-components": "^29.2.0",
+    "vite": "^7.3.1"
+  }
+}
+```
+---
+
+# **Структура файлов фронтенда**
+
+```text
+.
+├── Caddyfile
+├── Dockerfile
+├── index.html
+├── LICENSE
+├── package-lock.json
+├── package.json
+├── public
+│   └── fonts
+│       └── Roboto-Regular.ttf // лицензирован Apache License, v. 2.0
+├── src
+│   ├── App.vue
+│   ├── ClassEditor.vue
+│   ├── ClassesList.vue
+│   ├── ClassMap.vue
+│   ├── composables
+│   │   ├── useClasses.js
+│   │   └── useSeating.js
+│   ├── Generator.vue
+│   ├── main.js
+│   └── SeatingHistory.vue
+└── vite.config.js
+```

@@ -21,11 +21,11 @@
 ## 📸 Интерфейс системы
 
 <p align="center">
-  <img src="./screenshots/main.png" width="45%" alt="Главный экран" />
-  <img src="./screenshots/editor.png" width="45%" alt="Редактор класса" />
-  <img src="./screenshots/generator.png" width="45%" alt="Генератор рассадки" />
-  <img src="./screenshots/seatings.png" width="45%" alt="Сохраненные рассадки" />
-  <img src="./screenshots/view-seating.png" width="45%" alt="Просмотр сохраненной рассадки" />
+  <img src="./presentation/public/screenshots/main.png" width="45%" alt="Главный экран" />
+  <img src="./presentation/public/screenshots/editor.png" width="45%" alt="Редактор класса" />
+  <img src="./presentation/public/screenshots/generator.png" width="45%" alt="Генератор рассадки" />
+  <img src="./presentation/public/screenshots/seatings.png" width="45%" alt="Сохраненные рассадки" />
+  <img src="./presentation/public/screenshots/view-seating.png" width="45%" alt="Просмотр сохраненной рассадки" />
 </p>
 
 ---
